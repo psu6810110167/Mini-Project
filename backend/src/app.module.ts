@@ -8,7 +8,7 @@ import { Menu } from './menus/entities/menu.entity';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
-      port: 5433,             
+      port: 5432,             
       username: 'admin',      
       password: 'password123', 
       database: 'food_db',     
