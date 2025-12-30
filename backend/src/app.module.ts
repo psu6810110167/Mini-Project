@@ -12,6 +12,7 @@ import { Product } from './entities/product.entity';
 import { Order } from './entities/order.entity';
 import { OrderItem } from './entities/order-item.entity';
 import { Menu } from './menus/entities/menu.entity';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { Menu } from './menus/entities/menu.entity';
 
     MenusModule,
     AuthModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}
