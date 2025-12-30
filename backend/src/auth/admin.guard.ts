@@ -9,7 +9,7 @@ export class AdminGuard implements CanActivate {
     const secret = request.headers['admin-secret'];
 
     // ตรวจสอบว่ารหัสตรงกับที่เราตั้งไว้ไหม (ในที่นี้ตั้งเป็น 'MY_SUPER_SECRET_PASSWORD')
-    if (secret === 'MY_SUPER_SECRET_PASSWORD') {
+    if (secret === 'admin') {
       return true; // อนุญาตให้ผ่าน
     }
 
