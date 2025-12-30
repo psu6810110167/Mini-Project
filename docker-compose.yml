@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:14
     ports:
-      - "5433:5432" # ใช้ Port 5433
+      - "5432:5432" # ใช้ Port 5433
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password123
