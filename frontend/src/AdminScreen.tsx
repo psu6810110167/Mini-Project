@@ -11,8 +11,9 @@ const AdminScreen: React.FC = () => {
     isAvailable: true,
     image: ''
   });
+  const [adminSecret, setAdminSecret] = useState(''); 
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // 2. ฟังก์ชันจัดการการพิมพ์ข้อมูล (Handle Input Change)
   // React.ChangeEvent<HTMLInputElement> คือ Type ของ Event เวลาพิมพ์ในช่อง input
@@ -37,7 +38,11 @@ const AdminScreen: React.FC = () => {
     try {
       setIsLoading(true);
       // ยิง API ไปที่ Backend (Method POST)
-      await axios.post('http://localhost:3000/api/menus', formData);
+      await axios.post('http://localhost:3000/api/menus', formData, {
+        headers: {
+          'admin-secret': adminSecret // ส่งรหัสลับไปให้ Backend ตรวจ
+        }
+      });
       
       alert('✅ เพิ่มเมนูสำเร็จ!');
       // เคลียร์ค่าในฟอร์ม
@@ -53,9 +58,26 @@ const AdminScreen: React.FC = () => {
 
   return (
     <div className="admin-container">
-      <h1>👨‍🍳 เพิ่มเมนูอาหารใหม่</h1>
+      <h1>👨‍🍳 เพิ่มเมนูอาหารใหม่ (Admin Only)</h1>
       
       <form onSubmit={handleSubmit} className="admin-form">
+        
+        {/* --- [START] ส่วนที่เพิ่มใหม่: ช่องกรอกรหัส Admin --- */}
+        <div className="form-group" style={{ backgroundColor: '#fff3cd', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffeeba' }}>
+          <label style={{ color: '#856404', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
+            🔑 รหัสลับ Admin (จำเป็น):
+          </label>
+          <input
+            type="password"
+            value={adminSecret}
+            onChange={(e) => setAdminSecret(e.target.value)}
+            placeholder="กรอกรหัสลับที่นี่..."
+            required
+            style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
+          />
+        </div>
+        {/* --- [END] จบส่วนที่เพิ่มใหม่ --- */}
+
         <div className="form-group">
           <label>ชื่อเมนู:</label>
           <input
@@ -109,6 +131,6 @@ const AdminScreen: React.FC = () => {
       </form>
     </div>
   );
-};
+}; // ปิด function ตรงนี้
 
 export default AdminScreen;
