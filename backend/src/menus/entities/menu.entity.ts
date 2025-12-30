@@ -1,19 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Menu {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  name: string; // ชื่อเมนู (เช่น ข้าวกะเพรา)
+  @Column({ unique: true }) // 👈 เพิ่ม { unique: true } ตรงนี้ครับ (ห้ามชื่อซ้ำเด็ดขาด)
+  name: string;
 
   @Column('decimal')
-  price: number; // ราคา
+  price: number;
 
   @Column({ nullable: true })
-  image: string; // URL รูปภาพ (ถ้ามี)
+  image: string;
 
   @Column({ default: true })
-  isAvailable: boolean; // มีของไหม
+  isAvailable: boolean;
 }

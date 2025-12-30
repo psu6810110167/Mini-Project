@@ -1,66 +1,64 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { type CreateMenuDto } from './types';
-import './AdminScreen.css';
+import { useAuth } from './context/AuthContext'; // เรียกใช้สมอง (Context)
+import './AdminScreen.css'; // อย่าลืมสร้างไฟล์ CSS นี้นะครับ (มีโค้ดด้านล่าง)
+
+// กำหนด Type ของข้อมูลที่จะส่งไป Backend
+interface CreateMenuDto {
+  name: string;
+  price: number;
+  isAvailable: boolean;
+  image: string;
+}
 
 const AdminScreen: React.FC = () => {
-  // 1. State สำหรับเก็บข้อมูลในฟอร์ม (ค่าเริ่มต้น)
+  // 1. ดึงข้อมูลจากระบบ Login (รหัสลับ + ฟังก์ชัน Logout)
+  const { adminSecret, logout } = useAuth();
+  
   const [formData, setFormData] = useState<CreateMenuDto>({
     name: '',
     price: 0,
     isAvailable: true,
     image: ''
   });
-  
-  const [adminSecret, setAdminSecret] = useState(''); 
   const [isLoading, setIsLoading] = useState(false);
 
-  // 2. ฟังก์ชันจัดการการพิมพ์ข้อมูล (Handle Input Change)
+  // ฟังก์ชันจัดการ input เปลี่ยนค่า
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' 
-        ? checked 
-        : name === 'price' 
-          ? parseFloat(value) || 0  // แปลงราคาเป็นตัวเลขเสมอ
-          : value
+      [name]: type === 'checkbox' ? checked : (name === 'price' ? Number(value) : value)
     }));
-  }; 
-  // *** ลบ }; ที่เกินมาตรงนี้ออกเรียบร้อยแล้ว ***
+  };
 
-  // 3. ฟังก์ชันกดปุ่มบันทึก (Submit Form)
+  // ฟังก์ชันกดปุ่มบันทึก
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // ป้องกันหน้าเว็บ Refresh
+    e.preventDefault();
     
-    // ตรวจสอบข้อมูลเบื้องต้น
-    if (!formData.name || formData.price < 0) {
-      alert('กรุณากรอกชื่อและราคาให้ถูกต้อง');
+    if (!formData.name || formData.price <= 0) {
+      alert('⚠️ กรุณากรอกชื่อและราคาให้ถูกต้อง');
       return;
     }
 
     try {
       setIsLoading(true);
-      // ยิง API ไปที่ Backend
+      
+      // 2. ยิง API โดยแปะ 'admin-secret' ไปที่ Header อัตโนมัติ
       await axios.post('http://localhost:3000/api/menus', formData, {
         headers: {
-          'admin-secret': adminSecret // ส่งรหัสลับไปให้ Backend ตรวจ
+          'admin-secret': adminSecret // <--- รหัสลับมาจาก Context ไม่ต้องกรอกเอง
         }
       });
       
-      alert('✅ เพิ่มเมนูสำเร็จ!');
-      // เคลียร์ค่าในฟอร์ม
+      alert('✅ เพิ่มเมนูสำเร็จเรียบร้อย!');
+      
+      // รีเซ็ตฟอร์ม
       setFormData({ name: '', price: 0, isAvailable: true, image: '' });
       
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error adding menu:', error);
-      // เช็ค Error จาก Backend
-      if (error.response && error.response.status === 401) {
-         alert('❌ รหัส Admin ไม่ถูกต้อง!');
-      } else {
-         alert('❌ เกิดข้อผิดพลาด ไม่สามารถเพิ่มเมนูได้');
-      }
+      alert('❌ เกิดข้อผิดพลาด: รหัสไม่ถูกต้องหรือเซิร์ฟเวอร์มีปัญหา');
     } finally {
       setIsLoading(false);
     }
@@ -68,76 +66,70 @@ const AdminScreen: React.FC = () => {
 
   return (
     <div className="admin-container">
-      <h1>👨‍🍳 เพิ่มเมนูอาหารใหม่ (Admin Only)</h1>
-      
-      <form onSubmit={handleSubmit} className="admin-form">
-        
-        {/* --- ช่องกรอกรหัส Admin --- */}
-        <div className="form-group" style={{ backgroundColor: '#fff3cd', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #ffeeba' }}>
-          <label style={{ color: '#856404', fontWeight: 'bold', display: 'block', marginBottom: '8px' }}>
-            🔑 รหัสลับ Admin (จำเป็น):
-          </label>
-          <input
-            type="password"
-            value={adminSecret}
-            onChange={(e) => setAdminSecret(e.target.value)}
-            placeholder="กรอกรหัสลับที่นี่..."
-            required
-            style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
-          />
-        </div>
-
-        <div className="form-group">
-          <label>ชื่อเมนู:</label>
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="เช่น ข้าวกะเพราหมูสับ"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>ราคา (บาท):</label>
-          <input
-            type="number"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            min="0"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label>ลิงก์รูปภาพ (URL):</label>
-          <input
-            type="text"
-            name="image"
-            value={formData.image}
-            onChange={handleChange}
-            placeholder="http://example.com/food.jpg"
-          />
-        </div>
-
-        <div className="form-group checkbox-group">
-          <label>
-            <input
-              type="checkbox"
-              name="isAvailable"
-              checked={formData.isAvailable}
-              onChange={handleChange}
-            />
-            เปิดขายทันที
-          </label>
-        </div>
-
-        <button type="submit" disabled={isLoading} className="submit-btn">
-          {isLoading ? 'กำลังบันทึก...' : 'บันทึกเมนู'}
+      {/* ส่วนหัว Header */}
+      <div className="admin-header">
+        <h1>👨‍🍳 จัดการเมนูอาหาร</h1>
+        <button onClick={logout} className="logout-btn">
+          ออกจากระบบ
         </button>
-      </form>
+      </div>
+
+      <div className="admin-card">
+        <h3 style={{ marginTop: 0, color: '#555' }}>เพิ่มรายการใหม่</h3>
+        
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>ชื่อเมนูอาหาร:</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="เช่น ข้าวกะเพราหมูสับ"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>ราคา (บาท):</label>
+            <input
+              type="number"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              min="1"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>ลิงก์รูปภาพ (URL):</label>
+            <input
+              type="text"
+              name="image"
+              value={formData.image}
+              onChange={handleChange}
+              placeholder="http://example.com/food.jpg"
+            />
+          </div>
+
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="isAvailable"
+                checked={formData.isAvailable}
+                onChange={handleChange}
+              />
+              <span>เปิดขายทันที</span>
+            </label>
+          </div>
+
+          <button type="submit" disabled={isLoading} className="submit-btn">
+            {isLoading ? '⏳ กำลังบันทึก...' : '💾 บันทึกเมนู'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

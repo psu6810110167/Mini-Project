@@ -1,27 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { CreateMenuDto } from './dto/create-menu.dto';
 import { UpdateMenuDto } from './dto/update-menu.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Menu } from './entities/menu.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class MenusService {
-  // 1. ฉีด Repository เข้ามาใช้งาน
   constructor(
     @InjectRepository(Menu)
     private menusRepository: Repository<Menu>,
   ) {}
 
-  // 2. แก้ฟังก์ชัน create (ให้บันทึกจริง)
-  create(createMenuDto: CreateMenuDto) {
+  // ฟังก์ชันเพิ่มเมนู (แก้ไขใหม่)
+  async create(createMenuDto: CreateMenuDto) {
+    // 1. เช็คก่อนว่ามีชื่อนี้หรือยัง
+    const existingMenu = await this.menusRepository.findOne({ 
+      where: { name: createMenuDto.name } 
+    });
+
+    // 2. ถ้ามีแล้ว ให้โยน Error กลับไปบอก Frontend
+    if (existingMenu) {
+      throw new BadRequestException('❌ ชื่อเมนูนี้มีอยู่แล้วครับ กรุณาเปลี่ยนชื่อใหม่');
+    }
+
+    // 3. ถ้าไม่ซ้ำ ก็บันทึกตามปกติ
     return this.menusRepository.save(createMenuDto);
   }
 
-  // 3. แก้ฟังก์ชัน findAll (ให้ดึงข้อมูลจริง)
   findAll() {
-    return this.menusRepository.find(); 
-    // เดิมมันเขียนว่า return `This action returns all menus`; ให้ลบทิ้งเลย
+    return this.menusRepository.find();
   }
 
   findOne(id: number) {
