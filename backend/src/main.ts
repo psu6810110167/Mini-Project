@@ -8,7 +8,7 @@ async function bootstrap() {
   app.enableCors(); 
   
   // ถ้ามี setGlobalPrefix('api') อยู่แล้วก็ปล่อยไว้ครับ
-  // app.setGlobalPrefix('api'); 
+  app.setGlobalPrefix('api'); 
 
   await app.listen(3000);
 }

@@ -1,70 +1,95 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './MenuScreen.css';
-
-// 1. สร้าง Interface เพื่อกำหนดรูปร่างของข้อมูลเมนูอาหาร
-interface Menu {
-  id: number;           // หรือ string ขึ้นอยู่กับ Database ของคุณ
-  name: string;
-  price: number;
-  isAvailable: boolean;
-  image?: string;       // ใส่ ? ไว้เผื่อบางเมนูไม่มีรูป (Optional)
-}
+import { type Menu } from './types';
 
 const MenuScreen: React.FC = () => {
-  // 2. กำหนด Type ให้กับ State (บอกว่าเป็น Array ของ Menu)
   const [menus, setMenus] = useState<Menu[]>([]);
-  const [cartTotal, setCartTotal] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+
+  const fetchMenus = async () => {
+    try {
+      // *** ตรวจสอบ URL ให้ตรงกับที่คุณแก้ใน AdminScreen นะครับ ***
+      // เช่น http://localhost:3000/menus หรือ http://localhost:3000/api/menus
+      const response = await axios.get('http://localhost:3000/api/menus'); 
+      
+      console.log("Data from Backend:", response.data); // <--- ดูตรงนี้ใน Console (F12)
+
+      // เช็คว่าเป็น Array จริงไหม? ถ้าใช่ให้เซ็ตค่า ถ้าไม่ใช่ให้เป็น Array ว่างๆ
+      if (Array.isArray(response.data)) {
+        setMenus(response.data);
+      } else {
+        console.warn("ข้อมูลที่ได้ไม่ใช่ Array!", response.data);
+        setMenus([]); // กันเหนียวไว้ไม่ให้จอขาว
+      }
+    } catch (err) {
+      console.error('Error fetching menus:', err);
+      setError('ไม่สามารถดึงข้อมูลเมนูได้');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchMenus();
   }, []);
 
-  const fetchMenus = async () => {
-    try {
-      // 3. ระบุ Generic Type ให้ axios เพื่อให้รู้ว่า data ที่กลับมาหน้าตาเป็นอย่างไร
-      const response = await axios.get<Menu[]>('http://localhost:3000/api/menus');
-      setMenus(response.data);
-    } catch (error) {
-      console.error('Error fetching menus:', error);
-    }
-  };
-
-  // 4. ระบุ Type ของ Parameter ที่รับเข้ามา
-  const handleOrder = (price: number) => {
-    setCartTotal(cartTotal + Number(price));
-    alert('เพิ่มลงตะกร้าแล้ว!');
-  };
+  if (loading) return <div style={{ textAlign: 'center', marginTop: '20px' }}>⏳ กำลังโหลดรายการอาหาร...</div>;
+  if (error) return <div style={{ textAlign: 'center', color: 'red', marginTop: '20px' }}>❌ {error}</div>;
 
   return (
-    <div className="container">
-      <h1>🍽️ รายการอาหาร</h1>
-      <div className="total-bar">
-        ยอดรวมตะกร้า: <strong>{cartTotal} บาท</strong>
-      </div>
+    <div style={{ padding: '20px' }}>
+      <h1 style={{ textAlign: 'center', marginBottom: '30px' }}>🍽️ รายการอาหารของเรา</h1>
       
-      <div className="menu-grid">
-        {menus.map((menu) => (
-          <div key={menu.id} className="menu-card">
-            {/* ถ้ามีรูป สามารถใช้: src={menu.image} */}
-            <div className="menu-image-placeholder">🥘</div> 
-            <h3>{menu.name}</h3>
-            <p className="price">{menu.price} บาท</p>
-            
-            {menu.isAvailable ? (
-              <button onClick={() => handleOrder(menu.price)}>
-                สั่งอาหาร
-              </button>
-            ) : (
-              <button disabled style={{backgroundColor: 'gray'}}>
-                หมด
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
+      {/* เกราะป้องกันชั้นที่ 2: เช็คก่อนวนลูปเสมอ */}
+      {!menus || !Array.isArray(menus) || menus.length === 0 ? (
+        <div style={{ textAlign: 'center', color: '#777', marginTop: '50px' }}>
+          ยังไม่มีรายการอาหารในขณะนี้
+        </div>
+      ) : (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', 
+          gap: '20px' 
+        }}>
+          {menus.map((menu) => (
+            <div key={menu.id} style={{ 
+              border: '1px solid #ddd', 
+              borderRadius: '8px', 
+              overflow: 'hidden', 
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)' 
+            }}>
+              <div style={{ height: '200px', backgroundColor: '#f0f0f0' }}>
+                {menu.image ? (
+                  <img 
+                    src={menu.image} 
+                    alt={menu.name} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/250x200?text=No+Image'; }} 
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+                    ไม่มีรูปภาพ
+                  </div>
+                )}
+              </div>
+              <div style={{ padding: '15px' }}>
+                <h3 style={{ margin: '0 0 10px 0' }}>{menu.name}</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#28a745' }}>฿{menu.price}</span>
+                  {!menu.isAvailable && (
+                    <span style={{ fontSize: '12px', color: 'red', border: '1px solid red', padding: '2px 6px', borderRadius: '4px' }}>
+                      หมด
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default MenuScreen;
