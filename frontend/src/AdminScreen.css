@@ -1,71 +1,146 @@
+/* จัดโครงสร้างหน้าจอหลัก */
 .admin-container {
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
+  min-height: 100vh;
 }
 
-.admin-form .form-group {
-  margin-bottom: 15px;
-}
-
-.admin-form label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
-.admin-form input[type="text"],
-.admin-form input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
-}
-
-.checkbox-group label {
+.admin-header {
+  background-color: #ffffff;
+  padding: 15px 30px;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+/* แบ่งหน้าจอเป็น 2 ฝั่ง (ซ้าย-ขวา) */
+.admin-layout {
+  display: flex;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  align-items: flex-start; /* ให้เริ่มจากบนสุดเสมอ */
+}
+
+/* --- ฝั่งซ้าย (ฟอร์ม) --- */
+.admin-sidebar {
+  flex: 1;
+  min-width: 300px;
+  position: sticky; /* ลูกเล่น: ให้ฟอร์มค้างอยู่เวลาเลื่อนจอ */
+  top: 20px;
+}
+
+.form-card {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #444; }
+.form-group input[type="text"], 
+.form-group input[type="number"] {
+  width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;
 }
 
 .submit-btn {
-  width: 100%;
-  padding: 12px;
-  background-color: #28a745;
+  width: 100%; padding: 12px; background-color: #28a745; color: white;
+  border: none; border-radius: 6px; font-weight: bold; cursor: pointer;
+  transition: 0.2s;
+}
+.submit-btn:hover { background-color: #218838; }
+
+/* --- ฝั่งขวา (Grid รายการอาหาร) --- */
+.admin-main {
+  flex: 2; /* ให้พื้นที่เยอะกว่าฟอร์ม */
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* เรียงอัตโนมัติ */
+  gap: 20px;
+}
+
+/* --- การ์ดเมนู (พระเอกของเรา) --- */
+.menu-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.menu-card:hover {
+  transform: translateY(-5px); /* ขยับขึ้นนิดนึงเวลาชี้ */
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+}
+
+.card-image {
+  position: relative;
+  height: 140px;
+}
+
+.card-image img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+/* ป้ายสถานะ (ขายอยู่/หมด) */
+.status-badge {
+  position: absolute;
+  top: 10px; right: 10px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
   color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.status-badge.online { background-color: #28a745; }
+.status-badge.offline { background-color: #dc3545; }
+
+.card-details {
+  padding: 15px;
+  flex-grow: 1; /* ดันปุ่มลบไปล่างสุด */
+}
+
+.card-details h4 { margin: 0 0 5px 0; font-size: 1.1rem; color: #333; }
+.price { color: #28a745; font-weight: bold; font-size: 1.2rem; margin: 0; }
+
+.card-actions {
+  padding: 10px 15px 15px 15px;
+  border-top: 1px solid #eee;
+}
+
+/* ปุ่มลบที่ดูดี */
+.btn-delete {
+  width: 100%;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+  border-radius: 6px;
   cursor: pointer;
-  margin-top: 10px;
+  font-weight: bold;
+  transition: 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
 }
 
-.submit-btn:hover {
-  background-color: #218838;
-}
-
-.submit-btn:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.delete-btn {
+.btn-delete:hover {
   background-color: #ff4d4d;
   color: white;
-  border: none;
-  padding: 5px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-  margin-top: 5px;
-  width: 100%;
-  font-weight: bold;
 }
 
-.delete-btn:hover {
-  background-color: #cc0000;
+/* สำหรับมือถือ: ให้เรียงลงมาแทน */
+@media (max-width: 768px) {
+  .admin-layout { flex-direction: column; }
+  .admin-sidebar { width: 100%; position: static; }
 }

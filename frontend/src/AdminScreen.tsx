@@ -95,60 +95,71 @@ const AdminScreen: React.FC = () => {
     }
   };
 
+ // ... (ส่วนบนของไฟล์เหมือนเดิม) ...
+
   return (
     <div className="admin-container">
+      {/* --- ส่วนหัว --- */}
       <div className="admin-header">
-        <h1>👨‍🍳 จัดการเมนูอาหาร</h1>
-        <button onClick={logout} className="logout-btn">ออกจากระบบ</button>
       </div>
 
-      <div className="admin-content-wrapper" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+      <div className="admin-layout">
         
-        {/* ฟอร์มเพิ่มข้อมูล (ด้านซ้าย) */}
-        <div className="admin-card" style={{ flex: 1, minWidth: '300px' }}>
-          <h3 style={{ marginTop: 0, color: '#555' }}>เพิ่มรายการใหม่</h3>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>ชื่อเมนูอาหาร:</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-            </div>
-            <div className="form-group">
-              <label>ราคา (บาท):</label>
-              <input type="number" name="price" value={formData.price} onChange={handleChange} min="1" required />
-            </div>
-            <div className="form-group">
-              <label>ลิงก์รูปภาพ (URL):</label>
-              <input type="text" name="image" value={formData.image} onChange={handleChange} />
-            </div>
-            <div className="form-group checkbox-group">
-              <label>
-                <input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={handleChange} />
-                <span>เปิดขายทันที</span>
-              </label>
-            </div>
-            <button type="submit" disabled={isLoading} className="submit-btn">
-              {isLoading ? '⏳...' : '💾 บันทึกเมนู'}
-            </button>
-          </form>
+        {/* --- 👈 ฝั่งซ้าย: ฟอร์มเพิ่มเมนู (Fixed) --- */}
+        <div className="admin-sidebar">
+          <div className="form-card">
+            <h3>➕ เพิ่มเมนูใหม่</h3>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label>ชื่อเมนู:</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="เช่น กะเพราไก่" required />
+              </div>
+              <div className="form-group">
+                <label>ราคา (บาท):</label>
+                <input type="number" name="price" value={formData.price} onChange={handleChange} min="1" required />
+              </div>
+              <div className="form-group">
+                <label>รูปภาพ (URL):</label>
+                <input type="text" name="image" value={formData.image} onChange={handleChange} placeholder="http://..." />
+              </div>
+              <div className="form-group checkbox-group">
+                <label>
+                  <input type="checkbox" name="isAvailable" checked={formData.isAvailable} onChange={handleChange} />
+                  <span>เปิดขายทันที</span>
+                </label>
+              </div>
+              <button type="submit" disabled={isLoading} className="submit-btn">
+                {isLoading ? '⏳...' : '💾 บันทึก'}
+              </button>
+            </form>
+          </div>
         </div>
 
-        {/* รายการเมนูที่มีอยู่ (ด้านขวา - เพิ่มใหม่) */}
-        <div className="admin-list" style={{ flex: 2, minWidth: '300px' }}>
-          <h3>📋 รายการอาหารทั้งหมด ({menus.length})</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '15px' }}>
-            {menus.map(menu => (
-              <div key={menu.id} className="menu-item-card">
-                <img src={menu.image || 'https://via.placeholder.com/150'} alt={menu.name} />
-                <div className="menu-info">
+        {/* --- 👉 ฝั่งขวา: รายการเมนูทั้งหมด (Grid) --- */}
+        <div className="admin-main">
+          <h2 style={{ marginTop: 0 }}>📋 รายการอาหารทั้งหมด ({menus.length})</h2>
+          
+          <div className="menu-grid">
+            {menus.map((menu) => (
+              <div key={menu.id} className="menu-card">
+                {/* รูปภาพ + ป้ายสถานะ */}
+                <div className="card-image">
+                  <img src={menu.image || 'https://via.placeholder.com/150'} alt={menu.name} />
+                  <span className={`status-badge ${menu.isAvailable ? 'online' : 'offline'}`}>
+                    {menu.isAvailable ? '🟢 ขายอยู่' : '🔴 หมด'}
+                  </span>
+                </div>
+
+                {/* รายละเอียด */}
+                <div className="card-details">
                   <h4>{menu.name}</h4>
-                  <p>฿{menu.price}</p>
-                  
-                  {/* ปุ่มลบสีแดง */}
-                  <button 
-                    onClick={() => handleDelete(menu.id)} 
-                    className="delete-btn"
-                  >
-                    🗑️ ลบ
+                  <p className="price">฿{menu.price}</p>
+                </div>
+
+                {/* ปุ่มลบ (แยกออกมาด้านล่างสวยๆ) */}
+                <div className="card-actions">
+                  <button onClick={() => handleDelete(menu.id)} className="btn-delete">
+                    🗑️ ลบเมนู
                   </button>
                 </div>
               </div>
