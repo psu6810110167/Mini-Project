@@ -44,7 +44,7 @@ const LoginScreen: React.FC = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '6px' }}
-            placeholder="กรอกชื่อของคุณ..."
+            placeholder="กรอกชื่อของคุณ"
             required
           />
         </div>
@@ -57,10 +57,9 @@ const LoginScreen: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             style={{ width: '100%', padding: '10px', border: '1px solid #ccc', borderRadius: '6px' }}
-            placeholder="User ทั่วไปไม่ต้องใส่ (Admin ใส่ 'admin')"
+            placeholder="กรุณาใส่รหัสผ่าน"
           />
-          <small style={{ display: 'block', marginTop: '5px', color: '#777', fontSize: '12px' }}>
-            * ลูกค้าทั่วไปไม่ต้องใส่รหัสผ่าน, สำหรับ Admin ใส่รหัส: <b>admin</b>
+          <small style={{ display: 'block', marginTop: '5px', color: '#777', fontSize: '12px' }}> 
           </small>
         </div>
 
