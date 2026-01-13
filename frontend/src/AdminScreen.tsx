@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import { useAuth } from './context/AuthContext'; 
+import { useAuth } from './context/AuthContext'; 
 import './AdminScreen.css'; 
 
-// ใช้ตัวจำลอง Auth เหมือนเดิม
-const useAuth = () => ({
-  adminSecret: 'mySuperSecretPassword', 
-  logout: () => window.location.href = '/'
-});
 
 interface Menu {
   id: number;
@@ -18,7 +13,7 @@ interface Menu {
 }
 
 const AdminScreen: React.FC = () => {
-  const { adminSecret, logout } = useAuth();
+  const { adminSecret} = useAuth();
   
   const [menus, setMenus] = useState<Menu[]>([]); // เก็บรายการเมนูเพื่อแสดงผล
   const [formData, setFormData] = useState({
